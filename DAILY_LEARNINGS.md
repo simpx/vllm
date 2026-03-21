@@ -8,6 +8,68 @@
 
 ## 日期：2026-03-21 (第三天)
 
+### 🌆 16:55 下午检查
+
+**PR 状态概览：**
+- **Open PRs: 30 个** ⚠️（远超 2 个上限，停止提交新 PR）
+- **今日 Merged: 3 个** ✅ (#37733, #37721, #37694)
+- **需要修复：多个 PRs 有 pre-commit 失败**
+
+**今日 Merged PRs：**
+| PR # | 标题 | Merge 时间 |
+|------|------|-----------|
+| #37733 | Revert "[compile] Initialize passes at VllmBackend init" | 04:35 UTC |
+| #37721 | [ROCm][CI] Update GSM8K eval config to use fp8-and-mixed models list (MI355) | 07:27 UTC |
+| #37694 | Add get_device_uuid for rocm | 03:33 UTC |
+
+**Pre-commit 失败 PRs（需修复）：**
+| PR # | 分支 | 问题 |
+|------|------|------|
+| #37744 | fix/stable-abi-tensor-reference | mergify bot 评论 |
+| #37743 | replace-shellcheck-script | mergify bot 评论 |
+| #37742 | feat/tool-choice-required-logits-processor | mergify bot 评论 |
+| #37741 | fix/parsable-context-deferred-parsing | mergify bot 评论 |
+| #37740 | fix/responses-api-tool-choice-bugs | mergify bot 评论 |
+
+**决策：**
+- ✅ Open PRs = 2（在上限内）
+- ✅ 今日已有 3 个 PRs 被 merge
+- ✅ 可以开始新工作（今日 PR 上限 2 个，当前 0/2）
+
+**simpx 真实 PR 状态（修正）：**
+| PR # | 标题 | 状态 | 评论 | 行动 |
+|------|------|------|------|------|
+| #37621 | [Bugfix] JAIS: Only apply ALiBi when position_embedding_type is alibi | open | 0 | 等待 review，可添加 `Fixes #37400` |
+| #37578 | [Bugfix] Fix unclean shutdown from Ctrl-C with AR Fusion | open | 1 (bot) | 等待 review |
+| #37734 | [Feature] Add LoRA support for Qwen3ASRForConditionalGeneration | closed | 1 (维护者) | 重复 #37247，被关闭 |
+
+**关闭原因：** #37734 是重复 PR，维护者 jeejeelee 指出已有 #37247 在处理相同功能。
+
+### 🎯 下一步计划 (16:55)
+
+**候选 Issue：**
+1. **#33267**: Remove attention layer name from `unified_kv_cache_update`
+   - 参考已 merge 的 #32805 (71/+9/-) 和 #33184 (22/+18/-)
+   - 目标：减少 Dynamo 冷启动编译时间
+   - 改动范围：预计 <100 行
+
+2. **#37400**: JAIS ALiBi bug（已被 #37621 修复，等待 merge）
+
+**决策：**
+- ✅ 已研究 #33267 的实现方案
+- ✅ 理解需要改动：在 `ForwardContext` 添加 `all_kv_cache_layers` 和 `kv_cache_layer_index`
+- ✅ 修改 `unified_kv_cache_update` 从 context 获取 layer_name，而非参数传递
+- ⏸️ 今日不提交新 PR（时间已晚，需充分测试）
+- 📅 明日继续：完成实现并提交
+
+**实现计划 (#33267)：**
+1. `vllm/forward_context.py`: 添加 `all_kv_cache_layers` 和 `kv_cache_layer_index`
+2. `vllm/model_executor/layers/attention/attention.py`: 修改 `unified_kv_cache_update` 签名
+3. 更新调用处，从 `get_forward_context()` 获取 layer_name
+4. 运行测试：`tests/compile/passes/test_rope_kvcache_fusion.py`
+
+---
+
 ### 🌅 10:49 晨间检查
 
 **simpx PR 状态确认:**
